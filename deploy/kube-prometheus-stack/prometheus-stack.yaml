@@ -1,0 +1,130 @@
+
+# kubeControllerManager.enabled -- Deploy a service and serviceMonitor to scrape the Kubernetes controller-manager
+kubeControllerManager:
+  enabled: true
+
+defaultRules:
+  rules:
+    # defaultRules.rules.time -- Create time default rules
+    time: true
+    # defaultRules.rules.PrometheusOperator -- Create Prometheus Operator default rules
+    PrometheusOperator: true
+    # defaultRules.rules.kubernetesAbsent -- Create Kubernetes Absent (example API Server down) default rules
+    kubernetesAbsent: true
+    # defaultRules.rules.kubernetesApps -- Create Kubernetes Apps default rules
+    kubernetesApps: true
+    # defaultRules.rules.node -- Create Node default rules
+    node: true
+    # defaultRules.rules.kubeScheduler -- Create Kubernetes Scheduler default rules
+    kubeScheduler: true 
+    # defaultRules.rules.kubernetesResources -- Create Kubernetes Resources default rules
+    kubernetesResources: true 
+
+prometheusOperator:
+  admissionWebhooks:
+    patch:
+      podAnnotations:
+        linkerd.io/inject: "disabled"
+        consul.hashicorp.com/connect-inject: "false"
+
+prometheus:
+  
+  prometheusSpec:
+
+    ## Interval between consecutive scrapes.
+    ## Defaults to 30s.
+    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/release-0.44/pkg/prometheus/promcfg.go#L180-L183
+    ##
+    scrapeInterval: "30s"
+
+    ## Number of seconds to wait for target to respond before erroring
+    ##
+    scrapeTimeout: "30s"
+
+    ## Interval between consecutive evaluations.
+    ##
+    evaluationInterval: "30s"
+
+    ## If additional scrape configurations are already deployed in a single secret file you can use this section.
+    ## Expected values are the secret name and key
+    ## Cannot be used with additionalScrapeConfigs
+    additionalScrapeConfigsSecret: 
+      enabled: true
+      name: additional-scrape-configs
+      key: prometheus-additional.yaml
+
+    # prometheus.resources -- Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources: 
+      limits:
+        # prometheus.resources.limits.cpu -- CPU limit for the pod
+        cpu: 500m
+        # prometheus.resources.limits.memory -- Memory limit for the pod
+        memory: 512Gi
+      requests:
+        # prometheus.resources.request.cpu  -- CPU request for the pod
+        cpu: 10m
+        # prometheus.resources.requests.memory -- Memory request for the pod
+        memory: 100Mi
+
+    # prometheus.prometheusSpec.retention -- Time duration Prometheus shall retain data for. 
+    # Must match the regular expression [0-9]+(ms|s|m|h|d|w|y) (milliseconds seconds minutes hours days weeks years).
+    retention: 1h
+
+    #storageSpec:
+    #  volumeClaimTemplate:
+    #    spec:
+    #      # prometheus.persistence.storageClass -- storage [class](https://kubernetes.io/docs/concepts/storage/storage-classes/#introduction) name
+    #      # accepted options:
+    #      # - `standard`
+    #      storageClassName: "standard"
+    #      resources:
+    #        requests:
+    #          # prometheus.volumeClaimTemplate.resources.request.storage -- Volume size for persistence in GB
+    #          storage: "5Gi"
+
+grafana:
+ 
+  # grafana.adminPassword -- Admin password to log into the grafana UI
+  adminPassword: "admin"
+  persistence:
+    # grafana.persistence.enabled -- Enable / disable persistence of data, if it is disabled will be used [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir) model
+    enabled: false
+    # grafana.persistence.size -- Volume size for persistence in GB
+    size: "5Gi"
+    # grafana.persistence.storageClass -- storage [class](https://kubernetes.io/docs/concepts/storage/storage-classes/#introduction) name
+    # accepted options:
+    # - `standard`
+    storageClassName: "standard"
+   
+  sidecar:
+    dashboards:
+      provider:
+        # grafana.sidecar.dashboards.provider.allowUiUpdates -- Allow updating provisioned dashboards from the UI
+        allowUiUpdates: true
+      # grafana.sidecar.dashboards.label -- Label that config maps with dashboards should have to be added
+      label: grafana_dashboard
+      # grafana.sidecar.dashboards.searchNamespace -- If specified, the sidecar will search for dashboard config-maps inside this namespace. 
+      # Otherwise the namespace in which the sidecar is running will be used. It's also possible to specify ALL to search in all namespaces
+      searchNamespace: ALL
+  # grafana.plugins -- Plugins to be loaded along with Grafana
+  plugins: {}
+  #  - camptocamp-prometheus-alertmanager-datasource
+  #  - blackmirror1-statusbygroup-panel
+  # grafana.datasources -- Configure grafana datasources (passed through tpl)
+  datasources: {}
+    #datasources.yaml:
+    #  apiVersion: 1
+    #  datasources:
+    #  - name: prometheus-alertmanager
+    #    type: camptocamp-prometheus-alertmanager-datasource
+    #    access: proxy
+    #    url: http://alertmanager-operated:9093
+    #    isDefault: false
+    #    jsonData:
+    #      timeInterval: 15s
+    #      severity_critical: "4"
+    #      severity_high: "3"
+    #      severity_warning: "2"
+    #      severity_info: "1"
+    #    version: 1
+    #    editable: true

@@ -1,0 +1,66 @@
+# -- String to fully override common.names.fullname template with a string
+fullnameOverride: rabbitmq
+# -- Add Pod Annotations
+podAnnotations: {}
+  #linkerd.io/inject: enabled
+auth:
+  # -- RabbitMQ application username
+  username: admin
+  # -- RabbitMQ application password
+  password: rabbitmq
+  # -- Erlang cookie
+  erlangCookie: ps8tWlJwcqVrz3LqvnwrEw==
+# -- Extra plugins to enable (single string containing a space-separated list)
+extraPlugins: rabbitmq_prometheus
+resources: {}
+  #limits:
+  #  cpu: 800m
+  #  memory: 512Mi
+  #requests:
+  #  cpu: 100m
+  #  memory: 200Mi
+# -- Number of RabbitMQ nodes
+replicaCount: 1
+service:
+  # -- Kubernetes Service type
+  type: ClusterIP
+  # -- Amqp port
+  port: 5672
+  # -- Amqp TLS port
+  tlsPort: 5671
+  # -- RabbitMQ Manager port
+  managerPort: 15672
+  # -- RabbitMQ Manager service port name
+  managerPortName: http-stats
+ingress:
+  # -- Enable ingress controller resource
+  enabled: true
+  # -- Default host for the ingress resource
+  hostname: example.com
+  # -- Ingress path
+  path: /
+  # -- Additional annotations for the Ingress resource. 
+  #To enable certificate autogeneration, place here your cert-manager annotations.
+  annotations: {}
+  # -- Create TLS Secret
+  tls: false
+  # -- If you're providing your own certificates, please use this to add the certificates as secrets
+  secrets: []      
+metrics:
+  # -- Enable exposing RabbitMQ metrics to be gathered by Prometheus
+  enabled: false
+  serviceMonitor:
+    # -- Set this to true to create ServiceMonitor for Prometheus operator
+    enabled: true
+    # -- Additional labels that can be used so ServiceMonitor will be discovered by Prometheus
+    additionalLabels:
+      release: kube-prometheus-stack
+# site.nodeSelector -- Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+nodeSelector: {}
+  # node_pool: <NODE-POOL-NAME>
+# site.tolerations -- Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+  #- key: "dedicated"
+  #  operator: "Equal"
+  #  value: "<NODE-POOL-NAME>"
+  #  effect: "NoSchedule"
