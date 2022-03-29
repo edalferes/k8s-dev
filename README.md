@@ -107,7 +107,7 @@ Aqui está uma breve descrição de cada parâmetro que pode ser alterado.
 
 | Parametro    | Descrição                                                                             | Valor Padrão            |
 |--------------|---------------------------------------------------------------------------------------|-------------------------|
-| `KIND_IMAGE` | Define qual image do kind sera utilizada (a imagem representa a versão do kubernetes) | `kindest/node:v1.21.0` |
+| `KIND_IMAGE` | Define qual image do kind sera utilizada (a imagem representa a versão do kubernetes) | `kindest/node:v1.20.2` |
 
 
 ## Provisionando o ambiente
