@@ -104,12 +104,6 @@ validate_parameters() {
 
     if [ -e ${INIT_CONFIG_FILE} ]; then
 
-        K8S_VERSION=$(read_parameters "K8S_VERSION")
-        export K8S_VERSION_ENV="${K8S_VERSION}"
-
-        IP_DOCKER_REGISTRY=$(read_parameters "IP_DOCKER_REGISTRY")
-        export IP_DOCKER_REGISTRY_ENV="${IP_DOCKER_REGISTRY}"
-
         KIND_IMAGE=$(read_parameters "KIND_IMAGE")
 
 	else
@@ -149,7 +143,7 @@ create_cluster() {
 
     log_info "create_cluster" "create a cluster with the local registry enabled in containerd"
 
-    cat <<EOF | kind create cluster --config=-
+    cat <<EOF | kind create cluster --image=$KIND_IMAGE --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
